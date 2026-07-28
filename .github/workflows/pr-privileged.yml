@@ -1,0 +1,22 @@
+name: PR Privileged Actions
+on:
+  workflow_run:
+    workflows: ["PR Build"]
+    types: [completed]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  comment:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact (data only, never executed)
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ github.event.workflow_run.id }}
+          name: build-result
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: echo "Artifact downloaded and inspected as data only — no code execution."
